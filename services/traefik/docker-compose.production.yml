@@ -1,0 +1,6 @@
+version: '3.4'
+services:
+  traefik:
+    image: "$REGISTRY/${TRAEFIK_SERVICE}:${TRAEFIK_SERVICE__VERSION}"
+    build:
+      context: .

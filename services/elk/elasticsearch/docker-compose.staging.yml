@@ -1,0 +1,6 @@
+version: '3.4'
+services:
+  elasticsearch:
+    image: "$REGISTRY/${ELASTICSEARCH_SERVICE}:${ELASTICSEARCH_SERVICE__VERSION}"
+    build:
+      context: .

@@ -1,0 +1,33 @@
+version: '3.4'
+services:
+  logstash:
+    depends_on:
+      - elasticsearch
+    networks:
+      - net
+      - proxy
+    deploy:
+      mode: replicated
+      labels:
+        traefik.enable: 'true'
+        traefik.docker.network: traefik_proxy
+        traefik.backend: logstash
+        traefik.backend.loadbalancer.method: drr
+        traefik.frontend.entryPoints.http.redirect: https
+        traefik.frontend.headers.SSLRedirect: 'true'
+        traefik.frontend.rule: '{{ services.logstash.traefik.frontend.rule }}'
+        traefik.frontend.auth.basic: '{{ services.logstash.traefik.auth.basic }}'
+        traefik.port: '8080'
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 800M
+        reservations:
+          cpus: '0.25'
+          memory: 400M
+networks:
+  net:
+  proxy:
+    external:
+      name: traefik_proxy

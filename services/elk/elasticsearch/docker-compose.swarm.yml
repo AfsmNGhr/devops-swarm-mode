@@ -1,0 +1,21 @@
+version: '3.4'
+services:
+  elasticsearch:
+    networks:
+      - net
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: '2'
+          memory: 640M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+networks:
+  net:
+volumes:
+  elasticsearch_data:

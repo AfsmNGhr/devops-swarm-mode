@@ -1,0 +1,54 @@
+version: '3.4'
+services:
+  redis:
+    image: sameersbn/redis:4.0.9-2
+    command: '--loglevel warning'
+  postgresql:
+    image: postgres:10.6-alpine
+    environment:
+      PGDATA: /var/lib/postgresql/data/pg_data
+      POSTGRES_HOST: postgresql
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: '{{ services.gitlab.db.name }}'
+      POSTGRES_USER: '{{ services.gitlab.db.user }}'
+      POSTGRES_PASSWORD: '{{ services.gitlab.db.password }}'
+      POSTGRES_POOL: 5
+  gitlab:
+    image: sameersbn/gitlab:11.7.5
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DB_EXTENSION: pg_trgm
+      DB_ADAPTER: postgresql
+      DB_HOST: postgresql
+      DB_PORT: 5432
+      DB_USER: '{{ services.gitlab.db.user }}'
+      DB_PASS: '{{ services.gitlab.db.password }}'
+      DB_NAME: '{{ services.gitlab.db.name }}'
+      TZ: 'Europe/Moscow'
+      GITLAB_TIMEZONE: 'Moscow'
+      GITLAB_SIGNUP_ENABLED: 'false'
+      GITLAB_HTTPS: 'true'
+      SSL_SELF_SIGNED: 'false'
+      GITLAB_HOST: '{{ services.gitlab.host }}'
+      GITLAB_PORT: 443
+      GITLAB_SSH_PORT: 2222
+      GITLAB_SECRETS_DB_KEY_BASE: '{{ services.gitlab.db.key }}'
+      GITLAB_SECRETS_SECRET_KEY_BASE: '{{ services.gitlab.secret.key }}'
+      GITLAB_SECRETS_OTP_KEY_BASE: '{{ services.gitlab.otp.key }}'
+      GITLAB_ROOT_PASSWORD: '{{ services.gitlab.root.password }}'
+      GITLAB_EMAIL_REPLY_TO: '{{ services.gitlab.mail.user }}'
+      SMTP_USER: '{{ services.gitlab.mail.user }}'
+      SMTP_PASS: '{{ services.gitlab.mail.password }}'
+      SMTP_HOST: 'smtp.yandex.ru'
+      SMTP_PORT: 465
+      SMTP_STARTTLS: 'true'
+      SMTP_TLS: 'true'
+    ports:
+      - '80'
+      - '2222:22'
+  gitlab__runner:
+    image: wodby/gitlab-runner:10.5
+    environment:
+      CI_SERVER_URL: '{{ services.gitlab.ci.url }}'
+      REGISTRATION_TOKEN: '{{ services.gitlab.runner.token }}'

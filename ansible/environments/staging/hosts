@@ -1,0 +1,2 @@
+[staging]
+example ansible_ssh_host=example.com ansible_ssh_user=deploy ansible_python_interpreter=/usr/bin/python3

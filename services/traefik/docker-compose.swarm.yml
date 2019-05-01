@@ -1,0 +1,23 @@
+version: '3.4'
+services:
+  traefik:
+    image: "${TRAEFIK_SERVICE}:${TRAEFIK_SERVICE__VERSION}"
+    networks:
+      - proxy
+    deploy:
+      mode: global
+      update_config:
+        parallelism: 1
+        delay: 3s
+      restart_policy:
+        condition: on-failure
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_acme:/etc/traefik/acme:rw
+networks:
+  proxy:
+volumes:
+  traefik_acme:

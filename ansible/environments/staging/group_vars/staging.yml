@@ -1,0 +1,53 @@
+---
+services:
+  registry:
+    domain: 'registry.example.com'
+    user: 'example'
+    password: '*************************************************************'
+    http:
+      secret: '*************************************************************'
+    traefik:
+      auth:
+        basic: '************************************************************'
+  gitlab:
+    host: 'gitlab.example.com'
+    root:
+      password: '***********************************************************'
+    db:
+      key: 'example'
+      name: 'gitlabhq'
+      user: 'gitlab'
+      password: '***********************************************************'
+    secret:
+      key: '****************************************************************'
+    otp:
+      key: '****************************************************************'
+    runner:
+      token: '**************************************************************'
+    ci:
+      url: 'https://gitlab.example.com'
+    traefik:
+      frontend:
+        rule: 'Host: gitlab.example.com'
+    mail:
+      user: 'noreply@example.com'
+      password: '***********************************************************'
+  kibana:
+    auth:
+      basic: '**************************************************************'
+    traefik:
+      frontend:
+        rule: 'Host: log.example.com'
+  logstash:
+    gelf: 'udp://example.com:12201'
+    auth:
+      basic: '**************************************************************'
+    traefik:
+      frontend:
+        rule: 'Host: log.exmaple.com; PathPrefix: /logstash'
+  netdata:
+    traefik:
+      auth:
+        basic: '************************************************************'
+      frontend:
+        rule: 'Host: mon.exmaple.com'

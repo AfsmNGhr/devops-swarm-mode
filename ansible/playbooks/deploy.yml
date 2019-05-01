@@ -1,0 +1,6 @@
+---
+
+- name: Deploy services
+  hosts: '{{ group }}'
+  roles:
+    - deploy

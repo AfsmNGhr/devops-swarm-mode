@@ -1,0 +1,6 @@
+version: '3.4'
+services:
+  logstash:
+    image: "$REGISTRY/${LOGSTASH_SERVICE}:${LOGSTASH_SERVICE__VERSION}"
+    build:
+      context: .

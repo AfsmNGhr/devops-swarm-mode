@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+stack=${1:-example}
+env=${2:-staging}
+stacks="$(find services/* -maxdepth 1 -type d | awk -F/ '{print $NF}')"
+
+prepare_stack () {
+    source <(find "services/$stack" -type f -name '.env' -exec sed -E -n 's/[^#]+/export &/ p' {} +)
+
+    service=".*\\/$stack"
+    conf="\\.swarm\\|\\.$env"
+    child=".*"
+    regex="$service\\/\\($child\\)?docker-compose\\($conf\\)?\\.yml$"
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        cmd="find -E services/ -type f -regex $regex"
+    else
+        cmd="find services/ -type f -regextype posix-extended -regex $regex"
+    fi
+
+    files=$(sh -c "$cmd | xargs -n 1 -I \"%\" echo '-f' \"%\" | tr '\\n' ' '")
+
+    # WARNING: don't quote $files
+
+    docker-compose $files config > docker-compose.yml
+}
+
+sync_stack () {
+    git="$(find "services/$stack" -type f -name '.git*')"
+    if [ -n "$git" ]; then
+        git submodule update --init --remote "services/$stack"
+    fi
+}
+
+deploy () {
+    sync_stack
+    prepare_stack
+
+    date=$(date '+%Y-%m-%d %H:%M:%S')
+
+    if [ -f '.vault' ]; then
+        pass='--vault-password-file=.vault'
+    else
+        pass='--ask-vault-pass'
+    fi
+
+    time ansible-playbook ansible/playbooks/deploy.yml -i "ansible/environments/$env" \
+         -e "{\"date\": \"$date\", \"group\": \"$env\", \"stack\": \"$stack\"}" "$pass"
+}
+
+help () {
+    echo "Usage: $0"
+    echo 'Default: *'
+    echo 'Stacks: *example'
+    echo ''
+    echo "$stacks"
+    echo ''
+    echo 'Environments: *staging'
+    exit 1
+}
+
+if [ ! -d "services/$stack" ]; then
+    help
+fi
+
+# WARNING: don't delete quotes $stacks
+
+for i in "$stacks"; do
+    case "$i" in
+        *$stack*)
+            case "$env" in
+                'staging')
+                    deploy
+                    ;;
+                *)
+                    help
+                    ;;
+            esac
+            ;;
+        *)
+            help
+            ;;
+    esac
+done

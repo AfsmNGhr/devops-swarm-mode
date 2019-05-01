@@ -1,0 +1,57 @@
+---
+
+- name: Make stack directory
+  file:
+    path: '/home/{{ ansible_ssh_user }}/{{ stack }}'
+    state: directory
+    owner: '{{ ansible_ssh_user }}'
+
+- name: Get current stack
+  shell: readlink -f '/home/{{ ansible_ssh_user }}/{{ stack }}/current_{{ stack }}'
+  register: current
+
+- name: Set previous stack
+  file:
+    state: link
+    follow: False
+    src: '{{ current.stdout }}'
+    dest: '/home/{{ ansible_ssh_user }}/{{ stack }}/previous_{{ stack }}'
+    force: yes
+
+- name: Login to private registry
+  docker_login:
+    registry: "{{ services.registry.domain }}"
+    username: "{{ services.registry.user }}"
+    password: "{{ services.registry.password }}"
+    reauth: yes
+
+- name: Prepare services
+  template:
+    src: 'stack.yml.j2'
+    dest: '/home/{{ ansible_ssh_user }}/{{ stack }}/{{ stack }}_{{ date }}.yml'
+
+- name: Deploy stack
+  shell: >
+    docker stack deploy -c '/home/{{ ansible_ssh_user }}/{{ stack }}/{{ stack }}_{{ date }}.yml' '{{ stack }}' --with-registry-auth
+
+- name: Make current stack
+  file:
+    state: link
+    src: '/home/{{ ansible_ssh_user }}/{{ stack }}/{{ stack }}_{{ date }}.yml'
+    dest: '/home/{{ ansible_ssh_user }}/{{ stack }}/current_{{ stack }}'
+    force: yes
+
+- name: Find old stacks
+  find:
+    paths: '/home/{{ ansible_ssh_user }}/{{ stack }}'
+    age: 1w
+    patterns: '{{ stack }}_*.yml'
+  register: old
+
+- name: Delete old stacks
+  async: 1000
+  poll: 0
+  file:
+    path: '{{ item.path }}'
+    state: absent
+  with_items: '{{ old.files }}'

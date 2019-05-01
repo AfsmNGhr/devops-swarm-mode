@@ -1,0 +1,32 @@
+version: '3.4'
+services:
+  netdata:
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy
+    healthcheck:
+      test: 'nc -z localhost 19999 > /dev/null 2>&1 || exit 1'
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    deploy:
+      mode: global
+      labels:
+        traefik.enable: 'true'
+        traefik.docker.network: traefik_proxy
+        traefik.backend: netdata
+        traefik.backend.loadbalancer.method: drr
+        traefik.frontend.entryPoints.http.redirect: https
+        traefik.frontend.rule: '{{ services.netdata.traefik.frontend.rule }}'
+        traefik.frontend.auth.basic: '{{ services.netdata.traefik.auth.basic }}'
+        traefik.port: '19999'
+      restart_policy:
+        condition: on-failure
+networks:
+  proxy:
+    external:
+      name: traefik_proxy

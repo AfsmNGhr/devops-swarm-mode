@@ -1,0 +1,52 @@
+version: '3.4'
+services:
+  redis:
+    volumes:
+      - gitlab__redis_data:/var/lib/redis
+    networks:
+      - net
+  postgresql:
+    volumes:
+      - gitlab__pg_data:/var/lib/postgresql/data/pg_data
+    networks:
+      - net
+  gitlab:
+    volumes:
+      - gitlab_data:/home/git/data
+      - gitlab_config:/etc/gitlab
+    networks:
+      - net
+      - proxy
+    deploy:
+      labels:
+        traefik.enable: 'true'
+        traefik.docker.network: traefik_proxy
+        traefik.frontend.rule: '{{ services.gitlab.traefik.frontend.rule }}'
+        traefik.frontend.headers.SSLRedirect: 'true'
+        traefik.backend: gitlab
+        traefik.port: '80'
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+  gitlab__runner:
+    networks:
+      - net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - gitlab__runner_cache:/cache
+    deploy:
+      mode: replicated
+      replicas: 2
+networks:
+  net:
+  proxy:
+    external:
+      name: traefik_proxy
+volumes:
+  gitlab_data:
+  gitlab_config:
+  gitlab__pg_data:
+  gitlab__redis_data:
+  gitlab__runner_cache:

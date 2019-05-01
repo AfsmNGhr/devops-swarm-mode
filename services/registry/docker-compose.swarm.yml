@@ -1,0 +1,33 @@
+version: '3.4'
+services:
+  registry:
+    image: registry:2.6.2
+    ports:
+      - 5000
+    volumes:
+      - registry__data:/var/lib/registry
+    environment:
+      REGISTRY_HTTP_SECRET: '{{ services.registry.http.secret }}'
+    networks:
+      - proxy
+    healthcheck:
+      test: 'nc -z localhost 5000 > /dev/null 2>&1 || exit 1'
+    deploy:
+      mode: global
+      labels:
+        traefik.enable: 'true'
+        traefik.docker.network: traefik_proxy
+        traefik.backend: registry
+        traefik.backend.loadbalancer.method: drr
+        traefik.frontend.entryPoints.http.redirect: https
+        traefik.frontend.rule: '{{ services.registry.traefik.frontend.rule }}'
+        traefik.frontend.auth.basic: '{{ services.registry.traefik.auth.basic }}'
+        traefik.port: '5000'
+      restart_policy:
+        condition: on-failure
+networks:
+  proxy:
+    external:
+      name: traefik_proxy
+volumes:
+  registry__data:

@@ -1,0 +1,6 @@
+version: '3.4'
+services:
+  netdata:
+    image: "$REGISTRY/${NETDATA_SERVICE}:${NETDATA_SERVICE__VERSION}"
+    build:
+      context: .
