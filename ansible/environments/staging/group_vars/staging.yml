@@ -51,3 +51,17 @@ services:
         basic: '************************************************************'
       frontend:
         rule: 'Host: mon.exmaple.com'
+  sentry:
+    secret:
+      key: '****************************************************************'
+    db:
+      name: 'sentry'
+      user: 'sentry'
+      password: '***********************************************************'
+    traefik:
+      frontend:
+        rule: 'Host: sentry.example.com'
+    mail:
+      domain: 'example.com'
+      user: 'noreply@example.com'
+      password: '***********************************************************'

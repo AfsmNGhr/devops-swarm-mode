@@ -1,0 +1,112 @@
+version: '3.4'
+x-defaults: &defaults
+  restart: unless-stopped
+  image: sentry:9.0
+  depends_on:
+    - redis
+    - postgres
+    - memcached
+    - smtp
+  environment:
+    SENTRY_MEMCACHED_HOST: memcached
+    SENTRY_REDIS_HOST: redis
+    SENTRY_SMTP_HOSTNAME: smtp
+    SENTRY_EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
+    SENTRY_DB_NAME: '{{ services.sentry.db.name }}'
+    SENTRY_DB_USER: '{{ services.sentry.db.user }}'
+    SENTRY_DB_PASSWORD: '{{ services.sentry.db.password }}'
+    SENTRY_POSTGRES_HOST: postgres
+    SENTRY_POSTGRES_PORT: 5432
+    SENTRY_SECRET_KEY: '{{ services.sentry.secret.key }}'
+    SENTRY_SERVER_EMAIL: '{{ services.sentry.mail.user }}'
+    SENTRY_EMAIL_HOST: 'smtp.yandex.ru'
+    SENTRY_EMAIL_PORT: 587
+    SENTRY_EMAIL_USER: '{{ services.sentry.mail.user }}'
+    SENTRY_EMAIL_PASSWORD: '{{ services.sentry.mail.password }}'
+    SENTRY_EMAIL_USE_TLS: 'true'
+  volumes:
+    - sentry_data:/var/lib/sentry/files
+services:
+  smtp:
+    image: tianon/exim4
+    networks:
+      - net
+    restart: unless-stopped
+  memcached:
+    image: memcached:1.5-alpine
+    networks:
+      - net
+    restart: unless-stopped
+  redis:
+    image: sameersbn/redis:4.0.9-2
+    networks:
+      - net
+    restart: unless-stopped
+  postgres:
+    image: postgres:10.6-alpine
+    networks:
+      - net
+    environment:
+      PGDATA: /var/lib/postgresql/data/pg_data
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: '{{ services.sentry.db.name }}'
+      POSTGRES_USER: '{{ services.sentry.db.user }}'
+      POSTGRES_PASSWORD: '{{ services.sentry.db.password }}'
+      POSTGRES_POOL: 5
+    restart: unless-stopped
+    volumes:
+      - sentry__pg_data:/var/lib/postgresql/data
+  web:
+    <<: *defaults
+    depends_on:
+      - redis
+      - postgres
+      - memcached
+      - smtp
+      - migrator
+    ports:
+      - '9000'
+    networks:
+      - net
+      - proxy
+    deploy:
+      labels:
+        traefik.enable: 'true'
+        traefik.docker.network: traefik_proxy
+        traefik.frontend.rule: '{{ services.sentry.traefik.frontend.rule }}'
+        traefik.frontend.headers.SSLRedirect: 'true'
+        traefik.backend: web
+        traefik.port: '9000'
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+  migrator:
+    <<: *defaults
+    networks:
+      - net
+    command: upgrade --noinput
+    deploy:
+      mode: replicated
+      restart_policy:
+        condition: none
+  cron:
+    <<: *defaults
+    networks:
+      - net
+    command: run cron
+  worker:
+    <<: *defaults
+    networks:
+      - net
+    command: run worker
+networks:
+  net:
+  proxy:
+    external:
+      name: traefik_proxy
+volumes:
+  sentry_data:
+  sentry__pg_data:
