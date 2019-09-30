@@ -1,0 +1,3 @@
+[submodule "services/example/sanic-simple-api"]
+  path = services/example/sanic-simple-api
+  url = https://github.com/AfsmNGhr/sanic-simple-api.git

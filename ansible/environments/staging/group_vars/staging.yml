@@ -65,3 +65,7 @@ services:
       domain: 'example.com'
       user: 'noreply@example.com'
       password: '***********************************************************'
+  sanic-simple-api:
+    traefik:
+      frontend:
+        rule: 'Host: sanic.example.com'
