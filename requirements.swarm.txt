@@ -1,0 +1,2 @@
+docker # for ansible docker module
+jsondiff==1.2.0 # for ansible docker_stack module
