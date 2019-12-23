@@ -50,7 +50,7 @@ services:
       auth:
         basic: '************************************************************'
       frontend:
-        rule: 'Host: mon.exmaple.com'
+        rule: 'Host: mon.example.com'
   sentry:
     secret:
       key: '****************************************************************'
@@ -65,7 +65,7 @@ services:
       domain: 'example.com'
       user: 'noreply@example.com'
       password: '***********************************************************'
-  sanic-simple-api:
+  sanic_simple_api:
     traefik:
       frontend:
         rule: 'Host: sanic.example.com'

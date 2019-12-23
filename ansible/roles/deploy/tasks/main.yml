@@ -19,6 +19,7 @@
     force: yes
 
 - name: Login to private registry
+  # IMPORTANT: use "****" for password (maybe ' or another symbols)
   docker_login:
     registry: "{{ services.registry.domain }}"
     username: "{{ services.registry.user }}"
@@ -31,8 +32,12 @@
     dest: '/home/{{ ansible_ssh_user }}/{{ stack }}/{{ stack }}_{{ date }}.yml'
 
 - name: Deploy stack
-  shell: >
-    docker stack deploy -c '/home/{{ ansible_ssh_user }}/{{ stack }}/{{ stack }}_{{ date }}.yml' '{{ stack }}' --with-registry-auth
+  docker_stack:
+    state: present
+    name: '{{ stack }}'
+    with_registry_auth: yes
+    compose:
+      - '/home/{{ ansible_ssh_user }}/{{ stack }}/{{ stack }}_{{ date }}.yml'
 
 - name: Make current stack
   file:
