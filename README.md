@@ -1,7 +1,7 @@
 ## DevOps multi-repository
 
 This is a repository concept for managing all services.
-Git submodules are only used for updates (pull-mode like as [Repo](https://gerrit.googlesource.com/git-repo/)).
+Git submodules are **only used for updates** (pull-mode like as [Repo](https://gerrit.googlesource.com/git-repo/)).
 
 ### Requirements
 
@@ -24,8 +24,8 @@ This script is a wrapper for ansible [playbook](./ansible/playbook/deploy.yml) w
 
 #### Deploy an application stack
 
-Every service will be deployed separately with same the stack name. You can see all stacks in [the services folder](./services).
-You can see all environments in [the ansible environments folder](./ansible/environments).
+Every service will be deployed separately with same the stack name. You can see all stacks in [services folder](./services).
+You can see all environments in [ansible environments folder](./ansible/environments).
 
 ```sh
 ./deploy $STACK $ENV
