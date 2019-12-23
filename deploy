@@ -28,7 +28,7 @@ prepare_stack () {
 sync_stack () {
     git="$(find "services/$stack" -name '.git*')"
     if [ -n "$git" ]; then
-        git submodule update --init --remote "services/$stack"
+        git submodule update --init --remote --merge "services/$stack"
     fi
 }
 
