@@ -19,7 +19,7 @@ sudo pip install -r requirements.swarm.txt
 
 ### Deployment
 
-![Deploy on swarm](https://imgur.com/a/qsUllJ8)
+![Deploy on swarm](https://i.imgur.com/GpiyprY.gifv)
 
 The deployment will be produced with the bash script name of [deploy](./deploy).
 This script is a wrapper for [ansible playbook](./ansible/playbook/deploy.yml) with same name.
