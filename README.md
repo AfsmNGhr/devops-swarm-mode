@@ -1,4 +1,4 @@
-## DevOps multi-repository
+## DevOps & swarm-mode
 
 This is a repository concept for managing all services.
 Git submodules are **only used for updates** (pull-mode like as [Repo](https://gerrit.googlesource.com/git-repo/)).
@@ -30,5 +30,5 @@ Every service will be deployed separately with same the stack name. You can see 
 You can see all environments in [ansible environments folder](./ansible/environments).
 
 ```sh
-./deploy $STACK $ENV
+./deploy "$STACK" "$ENV" # optionally "$GROUP"
 ```

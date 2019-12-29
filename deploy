@@ -2,6 +2,7 @@
 
 stack=${1:-example}
 env=${2:-staging}
+group=${3:-"$env"}
 stacks="$(find services/* -maxdepth 1 -type d | awk -F/ '{print $NF}')"
 
 prepare_stack () {
@@ -39,7 +40,7 @@ deploy () {
     date=$(date '+%Y-%m-%d %H:%M:%S')
 
     time ansible-playbook ansible/playbooks/deploy.yml -i "ansible/environments/$env" \
-         -e "{\"date\": \"$date\", \"group\": \"$env\", \"stack\": \"$stack\"}"
+         -e "{\"date\": \"$date\", \"group\": \"$group\", \"stack\": \"$stack\"}"
 }
 
 help () {
@@ -56,6 +57,8 @@ help () {
 if [ ! -d "services/$stack" ]; then
     help
 fi
+
+echo -e "\nRUN [Deploy \"$stack\" stack & \"$env\" env to \"$group\" server(s) ...]\n"
 
 # WARNING: don't delete quotes $stacks
 
