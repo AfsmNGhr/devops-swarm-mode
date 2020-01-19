@@ -4,8 +4,8 @@ on:
   push:
 
 jobs:
-  test:
-    name: Test deployment with example
+  deploy:
+    name: Testing deployment
     runs-on: ubuntu-latest
     steps:
 
@@ -20,8 +20,11 @@ jobs:
       - name: Init docker swarm
         run: docker swarm init
 
+      - name: Fetch example service
+        run: git submodule update --init --remote --merge services/example
+
       - name: Build docker image for example service
-        run: docker-compose build -f docker-compose.test.yml
+        run: docker-compose -f docker-compose.test.yml build
         working-directory: ./services/example/sanic-simple-api
 
       - name: Deploy example service
