@@ -20,9 +20,11 @@ jobs:
           python-version: 3.5
 
       - name: Install requirements
-        run: pip install -r requirements.txt -r requirements.swarm.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements.swarm.txt
 
-      - name: Swarm init
+      - name: Initialize swarm
         run: docker swarm init
 
       - name: Fetch submodule
@@ -32,5 +34,5 @@ jobs:
         run: docker-compose -f docker-compose.test.yml build
         working-directory: ./services/example/sanic-simple-api
 
-      - name: Deployment stack
+      - name: Deploy example's stack
         run: ./deploy example test
