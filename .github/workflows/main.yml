@@ -51,4 +51,4 @@ jobs:
         run: ANSIBLE_PYTHON_INTERPRETER=$(which python) ./deploy example test
 
       - name: Validate stask
-        run: timeout 30 "watch docker service ls"
+        run: timeout 30 watch docker service ls
