@@ -25,6 +25,7 @@
     username: "{{ services.registry.user }}"
     password: "{{ services.registry.password }}"
     reauth: yes
+  when: env != 'test'
 
 - name: Prepare services
   template:
@@ -35,7 +36,7 @@
   docker_stack:
     state: present
     name: '{{ stack }}'
-    with_registry_auth: yes
+    with_registry_auth: '{{ env != "test" }}'
     compose:
       - '/home/{{ ansible_ssh_user }}/{{ stack }}/{{ stack }}_{{ date }}.yml'
 

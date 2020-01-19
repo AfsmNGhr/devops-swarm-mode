@@ -40,7 +40,7 @@ deploy () {
     date=$(date '+%Y-%m-%d %H:%M:%S')
 
     time ansible-playbook ansible/playbooks/deploy.yml -i "ansible/environments/$env" \
-         -e "{\"date\": \"$date\", \"group\": \"$group\", \"stack\": \"$stack\"}"
+         -e "{\"date\": \"$date\", \"group\": \"$group\", \"env\": \"$env\", \"stack\": \"$stack\"}"
 }
 
 help () {

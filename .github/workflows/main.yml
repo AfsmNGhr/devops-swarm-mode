@@ -14,18 +14,23 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Set up python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.5
+
       - name: Install requirements
         run: pip install -r requirements.txt -r requirements.swarm.txt
 
-      - name: Init docker swarm
+      - name: [swarm] Init
         run: docker swarm init
 
-      - name: Fetch example service
+      - name: [example] Fetch submodule
         run: git submodule update --init --remote --merge services/example
 
-      - name: Build docker image for example service
+      - name: [example] Build image
         run: docker-compose -f docker-compose.test.yml build
         working-directory: ./services/example/sanic-simple-api
 
-      - name: Deploy example service
+      - name: [example] Deployment
         run: ./deploy example test
