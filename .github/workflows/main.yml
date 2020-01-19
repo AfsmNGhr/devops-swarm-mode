@@ -5,7 +5,7 @@ on:
 
 jobs:
   deploy:
-    name: Check deployment
+    name: Check on python
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 2
@@ -38,8 +38,14 @@ jobs:
         run: git submodule update --init --remote --merge services/example
 
       - name: Build image
-        run: docker-compose -f docker-compose.test.yml build
-        working-directory: ./services/example/sanic-simple-api
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: afsmnghr/sanic-simple-api/sanic-simple-api:1.0.0
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.pkg.github.com
+          workdir: ./services/example/sanic-simple-api
+          cache: true
 
       - name: Deploy stack
         run: ANSIBLE_PYTHON_INTERPRETER=$(which python) ./deploy example test
