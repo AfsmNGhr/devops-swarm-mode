@@ -11,6 +11,7 @@ services:
     networks:
       - net
   gitlab:
+    stop_grace_period: 60s
     volumes:
       - gitlab_data:/home/git/data
       - gitlab_config:/etc/gitlab
@@ -30,6 +31,10 @@ services:
         delay: 10s
         max_attempts: 10
         window: 60s
+      update_config:
+        parallelism: 1
+        failure_action: rollback
+        order: start-first
   gitlab__runner:
     networks:
       - net

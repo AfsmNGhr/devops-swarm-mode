@@ -1,0 +1,28 @@
+name: Deploy playbook
+
+on:
+  push:
+
+ jobs:
+   test:
+     name: Test deployment with example
+     runs-on: ubuntu-latest
+   steps:
+
+     - name: Checkout
+       uses: actions/checkout@v2
+       with:
+         fetch-depth: 1
+
+     - name: Install requirements
+       run: pip install -r requirements.txt -r requirements.swarm.txt
+
+     - name: Init docker swarm
+       run: docker swarm init
+
+     - name: Build docker image for example service
+       run: docker-compose build -f docker-compose.test.yml
+         working-directory: ./services/example/sanic-simple-api
+
+     - name: Deploy example service
+       run: ./deploy example test
