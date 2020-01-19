@@ -7,6 +7,10 @@ jobs:
   deploy:
     name: Check deployment
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8]
     steps:
 
       - name: Checkout
@@ -17,7 +21,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v1
         with:
-          python-version: 3.5
+          python-version: ${{ matrix.python-version }}
 
       - name: Install requirements
         run: |
@@ -26,6 +30,9 @@ jobs:
 
       - name: Initialize swarm
         run: docker swarm init
+
+      - name: Set up traefik proxy network
+        run: docker network create traefik_proxy --scope swarm
 
       - name: Fetch submodule
         run: git submodule update --init --remote --merge services/example
