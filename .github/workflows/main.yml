@@ -49,6 +49,3 @@ jobs:
 
       - name: Deploy stack
         run: ANSIBLE_PYTHON_INTERPRETER=$(which python) ./deploy example test
-
-      - name: Validate stask
-        run: docker service ls
