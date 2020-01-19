@@ -22,15 +22,15 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements.txt -r requirements.swarm.txt
 
-      - name: [swarm] Init
+      - name: Swarm init
         run: docker swarm init
 
-      - name: [example] Fetch submodule
+      - name: Fetch submodule
         run: git submodule update --init --remote --merge services/example
 
-      - name: [example] Build image
+      - name: Build image
         run: docker-compose -f docker-compose.test.yml build
         working-directory: ./services/example/sanic-simple-api
 
-      - name: [example] Deployment
+      - name: Deployment stack
         run: ./deploy example test
