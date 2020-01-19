@@ -5,7 +5,7 @@ on:
 
 jobs:
   deploy:
-    name: Testing deployment
+    name: Check deployment
     runs-on: ubuntu-latest
     steps:
 
@@ -34,5 +34,5 @@ jobs:
         run: docker-compose -f docker-compose.test.yml build
         working-directory: ./services/example/sanic-simple-api
 
-      - name: Deploy example's stack
-        run: ./deploy example test
+      - name: Deploy stack
+        run: ANSIBLE_PYTHON_INTERPRETER=$(which python) ./deploy example test
