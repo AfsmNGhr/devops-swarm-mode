@@ -1,5 +1,10 @@
 ---
 services:
+  traefik:
+    docker:
+      domain: 'example.com'
+    acme:
+      email: 'admin@example.com'
   registry:
     domain: 'registry.example.com'
     user: 'example'

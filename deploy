@@ -9,7 +9,7 @@ prepare_stack () {
     source <(find "services/$stack" -type f -name '.env' -exec sed -E -n 's/[^#]+/export &/ p' {} +)
 
     service=".*\\/$stack"
-    conf="\\.swarm\\|\\.$env"
+    conf="\\.$env\\|\\.swarm"
     child=".*"
     regex="$service\\/\\($child\\)?docker-compose\\($conf\\)?\\.yml$"
 
@@ -33,6 +33,10 @@ sync_stack () {
     fi
 }
 
+cleanup () {
+    rm -f docker-compose.yml
+}
+
 deploy () {
     sync_stack
     prepare_stack
@@ -41,6 +45,11 @@ deploy () {
 
     time ansible-playbook ansible/playbooks/deploy.yml -i "ansible/environments/$env" \
          -e "{\"date\": \"$date\", \"group\": \"$group\", \"env\": \"$env\", \"stack\": \"$stack\"}"
+
+    status_code="$?"
+    [ "$status_code" != 0 ] && exit 1
+
+    cleanup
 }
 
 help () {

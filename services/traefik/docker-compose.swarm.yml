@@ -1,7 +1,27 @@
 version: '3.4'
 services:
   traefik:
-    image: "${TRAEFIK_SERVICE}:${TRAEFIK_SERVICE__VERSION}"
+    image: traefik:v1.7.20-alpine
+    command:
+      # - '--logLevel=DEBUG'
+      - '--logLevel=INFO'
+      - '--entrypoints=Name:http Address::80'
+      - '--entrypoints=Name:http Address::80 Redirect.EntryPoint:https'
+      - '--entrypoints=Name:https Address::443 TLS'
+      - '--defaultEntrypoints=http,https'
+      - '--acme'
+      - '--acme.caServer=https://acme-v02.api.letsencrypt.org/directory'
+      # - '--acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory'
+      - '--acme.storage=/etc/traefik/acme/acme.json'
+      - '--acme.entryPoint=https'
+      - '--acme.httpChallenge.entryPoint=http'
+      - '--acme.onHostRule=true'
+      - '--acme.email={{ services.traefik.acme.email }}'
+      - '--docker'
+      - '--docker.domain={{ services.traefik.docker.domain }}'
+      - '--docker.swarmMode=true'
+      - '--docker.watch'
+      - '--docker.exposedByDefault=false'
     networks:
       - proxy
     deploy:
