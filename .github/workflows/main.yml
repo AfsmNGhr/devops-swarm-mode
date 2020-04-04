@@ -1,4 +1,4 @@
-name: Deploy playbook
+name: Build & deploy playbooks
 
 on:
   push:
@@ -35,7 +35,7 @@ jobs:
         run: docker network create traefik_proxy --scope swarm
 
       - name: Login to docker registry
-        run: docker login -u=${{ github.actor }} -p=${{ secrets.DOCKER_PASSWORD }} docker.pkg.github.com
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u=${{ github.actor }} --password-stdin docker.pkg.github.com
 
       - name: Build stack
         run: ANSIBLE_PYTHON_INTERPRETER=$(which python) ./build example test
