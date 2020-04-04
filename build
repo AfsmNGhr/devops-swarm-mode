@@ -9,19 +9,19 @@ prepare_stack () {
     source <(find "services/$stack" -type f -name '.env' -exec sed -E -n 's/[^#]+/export &/ p' {} +)
 
     service=".*\\/$stack"
-    conf="\\.$env\\|\\.swarm"
+    conf="\\.$env"
     child=".*"
     regex="$service\\/\\($child\\)?docker-compose\\($conf\\)?\\.yml$"
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        cmd="find -E services/ -type f -regex $regex"
+        cmd="find -E services/ -regex $regex"
     else
-        cmd="find services/ -type f -regextype posix-extended -regex $regex"
+        cmd="find services/ -regextype posix-extended -regex $regex"
     fi
 
     files=$(sh -c "$cmd | xargs -n 1 -I \"%\" echo '-f' \"%\" | tr '\\n' ' '")
 
-    # WARNING: don't quote $files
+    # WARNING: Don't quote $files
 
     docker-compose $files config > docker-compose.yml
 }
@@ -37,12 +37,12 @@ cleanup () {
     rm -f docker-compose.yml
 }
 
-deploy () {
+build () {
     sync_stack
     prepare_stack
 
-    time ansible-playbook ansible/playbooks/deploy.yml -i "ansible/environments/$env" \
-         -e "{\"group\": \"$group\", \"env\": \"$env\", \"stack\": \"$stack\"}"
+    time ansible-playbook ansible/playbooks/build.yml -i "ansible/environments/$env" \
+         -e "{\"project_path\": \"$(pwd)\", \"env\": \"$env\", \"group\": \"$group\", \"stack\": \"$stack\"}"
 
     status_code="$?"
     [ "$status_code" != 0 ] && exit 1
@@ -65,16 +65,14 @@ if [ ! -d "services/$stack" ]; then
     help
 fi
 
-echo -e "\nRUN [Deploy \"$stack\" stack & \"$env\" env to \"$group\" server(s) ...]\n"
-
-# WARNING: don't delete quotes $stacks
+# WARNING: Don't delete quotes $stacks
 
 for i in "$stacks"; do
     case "$i" in
         *$stack*)
             case "$env" in
-                'staging'|'test')
-                    deploy
+                'staging'|'production')
+                    build
                     ;;
                 *)
                     help

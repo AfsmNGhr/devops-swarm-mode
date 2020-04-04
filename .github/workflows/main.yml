@@ -34,18 +34,14 @@ jobs:
       - name: Set up traefik proxy network
         run: docker network create traefik_proxy --scope swarm
 
-      - name: Fetch submodule
-        run: git submodule update --init --remote --merge services/example
+      - name: Login to docker registry
+        run: docker login -u=${{ github.actor }} -p=${{ secrets.DOCKER_PASSWORD }} docker.pkg.github.com
 
-      - name: Build image
-        uses: elgohr/Publish-Docker-Github-Action@master
-        with:
-          name: afsmnghr/sanic-simple-api/sanic-simple-api:1.0.0
-          username: ${{ github.actor }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          registry: docker.pkg.github.com
-          workdir: ./services/example/sanic-simple-api
-          cache: true
+      - name: Build stack
+        run: ANSIBLE_PYTHON_INTERPRETER=$(which python) ./build example test
 
       - name: Deploy stack
         run: ANSIBLE_PYTHON_INTERPRETER=$(which python) ./deploy example test
+
+      - name: Logout from docker registry
+        run: docker logout docker.pkg.github.com

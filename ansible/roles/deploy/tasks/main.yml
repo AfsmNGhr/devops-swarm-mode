@@ -12,7 +12,7 @@
 - name: Prepare a stack file
   template:
     src: 'stack.yml.j2'
-    dest: '/tmp/{{ stack }}_{{ date }}.yml'
+    dest: '/tmp/{{ stack }}.yml'
 
 - name: Deploy stack
   docker_stack:
@@ -20,9 +20,9 @@
     name: '{{ stack }}'
     with_registry_auth: '{{ env != "test" }}'
     compose:
-      - '/tmp/{{ stack }}_{{ date }}.yml'
+      - '/tmp/{{ stack }}.yml'
 
 - name: Delete a stack file
   file:
     state: absent
-    path: '/tmp/{{ stack }}_{{ date }}.yml'
+    path: '/tmp/{{ stack }}.yml'
