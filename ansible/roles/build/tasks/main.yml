@@ -1,0 +1,33 @@
+---
+
+- name: Prepare a stack file
+  template:
+    src: 'stack.yml.j2'
+    dest: '{{ project_path }}/{{ stack }}.yml'
+
+- name: Pull images
+  shell: docker-compose -f '/{{ project_path }}/{{ stack }}.yml' pull || true
+
+- name: Build a stack
+  shell: docker-compose -f '{{ project_path }}/{{ stack }}.yml' build
+  register: build
+  failed_when: build.rc != 0
+
+- name: Login to private registry
+  # IMPORTANT: use "****" for password (maybe ' or another symbols)
+  docker_login:
+    registry: "{{ services.registry.domain }}"
+    username: "{{ services.registry.user }}"
+    password: "{{ services.registry.password }}"
+    reauth: yes
+  when: env != 'test'
+
+- name: Push images
+  shell: docker-compose -f '{{ project_path }}/{{ stack }}.yml' push
+  register: push
+  failed_when: push.rc != 0
+
+- name: Remove a stack file
+  file:
+    path: '{{ project_path }}/{{ stack }}.yml'
+    state: absent
