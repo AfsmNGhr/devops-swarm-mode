@@ -2,6 +2,8 @@ name: Build & deploy playbooks
 
 on:
   push:
+  schedule:
+    - cron:  '0 17 * * *'
 
 jobs:
   deploy:
