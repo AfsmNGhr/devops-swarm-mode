@@ -19,7 +19,7 @@ prepare_stack () {
         cmd="find services/ -type f -regextype posix-extended -regex $regex"
     fi
 
-    files=$(sh -c "$cmd | xargs -n 1 -I \"%\" echo '-f' \"%\" | tr '\\n' ' '")
+    files=$(sh -c "$cmd | xargs -I \"%\" echo '-f' \"%\" | tr '\\n' ' '")
 
     # WARNING: don't quote $files
 
