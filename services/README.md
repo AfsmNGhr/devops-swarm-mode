@@ -1,23 +1,24 @@
 ## Services Folder
 
-This folder have to contains all services.
-A service folder can be contains subfolders if they are depends on service.
+This folder have to contain all services.
+A service folder can be contain subfolders if they depend on the service.
 
 ### Structure
 
-Every a service folder should contains `docker-compose.swarm.yml` file.
-Also you can be add `docker-compose.$env.yml`, `Dockerfile` and `.env`, if it's necessary.
-You must create `.dockerignore` file with `.env`, `*.md` and `*.yml` that they mustn't in the context of the build if you are need to built custom the docker image.
+Every service folder should contain `docker-compose.swarm.yml` file.
+Also you can be add `docker-compose.$env.yml`, `Dockerfile` and `.env`, if it's necessary. You must create `.dockerignore` that contains
+`.env`, `*.md` and `*.yml` because there is no need for these file to
+be in the build context if you need to built a custom docker image.
 
-#### Required sections for swarm configuration
+#### Required sections
 
 ##### Networking
 
-For domain notation use only service name.
+For domain notation use only the service name.
 
 ##### Statefull
 
-For statefull service you must create volume.
+For statefull service you must create a volume.
 
 ```yml
 version: '3.4'
@@ -25,14 +26,14 @@ services:
   pg:
     image: postgres:10.6-alpine
     volumes:
-      - pg_data:/var/lib/postgresql/data/pg_data
+      - pg_data:/var/lib/postgresql/data
 volumes:
   pg_data:
 ```
 
 ##### Web Application
 
-For web application, configure a check that a service is "healthy". [More learn](https://docs.docker.com/compose/compose-file/#healthcheck).
+For web application, configure a check that the service is "healthy". [More learn](https://docs.docker.com/compose/compose-file/#healthcheck).
 
 ```yml
 version: '3.4'
@@ -109,8 +110,8 @@ example__migrator:
 
 ### Deployment
 
-Every a service have to deploy separately by docker stack via [Ansible](../README.md#deploy-the-application-stack).
+Every service has to be deployed separately by a docker stack via [Ansible](../README.md#deploy-the-application-stack).
 
 ### Learn more
 
-Learn more about specific service in service folder.
+To learn more about a specific service look into the folder for the service.
